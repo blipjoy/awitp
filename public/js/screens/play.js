@@ -21,7 +21,7 @@ game.PlayScreen = game.BaseScreen.extend({
             var key = e.key || e.keyCode || e.which;
 
             // Enter/Return key
-            if (key === 10 || key === 13) {
+            if (key === "Enter" || key === 10 || key === 13) {
                 this.command = this.$input.val();
                 this.$input.val("");
                 e.preventDefault();
