@@ -1,0 +1,67 @@
+body {
+    background-color: #000;
+    color: #fff;
+
+    /* Allow mouse dragging. */
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+
+    /* disable touch panning/zooming */
+    -ms-touch-action: none;
+    touch-action: none;
+
+    /* Allow canvas to hit the edges of the browser viewport. */
+    margin: 0;
+
+    /* allow body to cover entire browser viewport */
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+#screen {
+    position: relative;
+    width: 960px;
+    height: 640px;
+    margin: auto;
+}
+
+#screen canvas {
+    /* Hide the gap for font descenders. */
+    display: block;
+}
+
+#screen input {
+    background-color: #000;
+    color: #fff;
+    font-family: Menlo, "DejaVu Sans Mono", "Lucida Console", monospace;
+    font-size: 12px;
+
+    margin: 0;
+    border: none;
+    outline: none;
+
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    height: 14px;
+}
+
+#gamemix {
+    position: relative;
+    margin: -70px auto 0 auto;
+    width: 400px;
+}
+
+#gamemix img {
+    margin: 0 10px 0 0;
+    float: left;
+    border: none;
+}
