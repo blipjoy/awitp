@@ -89,6 +89,11 @@ game.text = {
 "that went into creating this masterpiece of modern walkway architecture."
                 ],
 
+                "tree" : [
+"Off in the distance, you can see an incredibly tall tree.  It's just north " +
+"of here."
+                ],
+
                 "nook" : [
 "This is a nook!  And my!  What an nook it is!"
                 ],
@@ -129,6 +134,13 @@ game.text = {
 
                             game.text.play.tree.get.plank =
 "A wooden plank that you stole from a child's swing.  You horrible person!";
+
+                            game.text.play.tree.look.tree = [
+"It looks like it reaches straight up forever..."
+                            ];
+
+                            delete game.text.play.tree.use.swing;
+                            delete game.text.play.tree.look.swing;
                         }
                     }
                 },
@@ -207,6 +219,13 @@ game.text = {
 
                         "_unlock" : function () {
                             game.text.play.pond.go.water = "water";
+
+                            game.text.play.pond.look.reed = [
+"You've managed to carve your way through the thick reeds, exposing an " +
+"opening to the water."
+                            ];
+
+                            delete game.text.play.pond.use.knife.reed;
                         }
                     }
                 },
@@ -246,6 +265,9 @@ game.text = {
 "",
 "A path leads east, in the direction of a very tall tree."
                             ]);
+
+                            delete game.screen.bag.stone;
+                            delete game.text.play.pond.use.stone.duck;
                         }
                     }
                 }
@@ -314,6 +336,8 @@ game.text = {
                 "surface"   : "water"
             },
 
+            "get" : {},
+
             "info" : {
                 "_" : [
 "*GLUG!*  *GLUG!*",
@@ -355,6 +379,8 @@ game.text = {
 
                         game.text.play.home.get.knife =
 "My trusty folding knife.  Never leave home without it!";
+
+                        delete game.text.play.home.use.bed;
                     }
                 }
             },
