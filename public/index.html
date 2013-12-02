@@ -53,19 +53,15 @@ window.onReady(function () {
         );
     }
 
-    else if (!me.device.isMobile && !(c.DEBUG || c.HASH.noads || c.HASH.play)) {
-        var gamemix = document.createElement("div");
-        gamemix.id = "gamemix";
-
-        gamemix.innerHTML = "<a href=\"http://www.gamemix.com/\">"
-            + "<img src=\"data/img/gamemix.png\">"
-            + "</a>"
-            + "<iframe src=\"http://bx.gamemix.com/promote?action=get&"
-                + "p=6788275&s=6824971&ref="
-                + encodeURIComponent(window.location.href)
-            + "\" frameborder=0 width=320 height=50></iframe>";
-
-        document.body.appendChild(gamemix);
+    else if (!me.device.isMobile && !(c.DEBUG || c.HASH.play)) {
+        $("body").append($(
+            '<div id="charity">'
+        +       '<a href="http://www.childsplaycharity.org/donate" '
+        +           'target="_blank">'
+        +           '<img src="data/img/charity.png" alt="Support Charity!">'
+        +       '</a>'
+        +   '</div>'
+        ));
     }
 });
 </script>

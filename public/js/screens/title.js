@@ -123,10 +123,7 @@ game.TitleScreen = game.BaseScreen.extend({
     "onDestroyEvent" : function () {
         this.parent();
 
-        var gamemix = document.getElementById("gamemix");
-        if (gamemix) {
-            document.body.removeChild(gamemix);
-        }
+        $("#charity").remove();
     },
 
     "update" : function () {

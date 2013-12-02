@@ -54,14 +54,17 @@ body {
     height: 14px;
 }
 
-#gamemix {
+#charity {
     position: relative;
-    margin: -70px auto 0 auto;
-    width: 400px;
+    margin: -64px auto 0 auto;
+    width: 256px;
+    height: 64px;
 }
 
-#gamemix img {
-    margin: 0 10px 0 0;
-    float: left;
+#charity img {
     border: none;
+}
+
+#charity img:hover {
+    box-shadow: 0 0 20px 0 #fff;
 }

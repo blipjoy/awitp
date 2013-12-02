@@ -86,7 +86,9 @@ var game = {
         me.state.set(me.state.PLAY, game.playscreen);
 
         // Start the game.
-        me.state.change(c.DEBUG || c.HASH.play ? me.state.PLAY : me.state.BLIPJOY);
+        me.state.change((
+            c.DEBUG || c.HASH.play 
+        ) ? me.state.PLAY : me.state.BLIPJOY);
     }
 };
 
