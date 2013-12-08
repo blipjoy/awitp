@@ -212,19 +212,25 @@ window.me = window.me || {};
 	}
 
 	/**
+	 * The built in window Object
+	 * @external window
+	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window.window}
+	 */
+    
+	/**
 	 * Specify a function to execute when the DOM is fully loaded
+     * @memberOf external:window#
+     * @alias onReady
 	 * @param {Function} handler A function to execute after the DOM is ready.
 	 * @example
 	 * // small main skeleton
-	 * var jsApp	=
-	 * {
-	 *    // Initialize the jsApp
+	 * var game	= {
+	 *    // Initialize the game
 	 *    // called by the window.onReady function
-	 *    onload: function()
-	 *    {
+	 *    onload: function() {
+	 *
 	 *       // init video
-	 *       if (!me.video.init('jsapp', 640, 480))
-	 *       {
+	 *       if (!me.video.init('screen', 640, 480, true)) {
 	 *          alert("Sorry but your browser does not support html 5 canvas. ");
 	 *          return;
 	 *       }
@@ -236,27 +242,25 @@ window.me = window.me || {};
 	 *       me.loader.onload = this.loaded.bind(this);
 	 *
 	 *       // set all ressources to be loaded
-	 *       me.loader.preload(g_ressources);
+	 *       me.loader.preload(game.resources);
 	 *
 	 *       // load everything & display a loading screen
 	 *       me.state.change(me.state.LOADING);
 	 *    },
 	 *
 	 *    // callback when everything is loaded
-	 *    loaded: function ()
-	 *    {
+	 *    loaded: function () {
 	 *       // define stuff
 	 *       // ....
 	 *
 	 *       // change to the menu screen
 	 *       me.state.change(me.state.MENU);
 	 *    }
-	 * }; // jsApp
+	 * }; // game
 	 *
 	 * // "bootstrap"
-	 * window.onReady(function()
-	 * {
-	 *    jsApp.onload();
+	 * window.onReady(function() {
+	 *    game.onload();
 	 * });
 	 */
 	$.onReady = function(fn) {
@@ -646,6 +650,18 @@ window.me = window.me || {};
 		 */
 		String.prototype.trim = function () {  
 			return (this.replace(/^\s+/, '')).replace(/\s+$/, ''); 
+		};  
+	}
+    
+	if(!String.prototype.trimRight) {  
+		/**
+		 * returns the string stripped of whitespace from the right end of the string.
+		 * @memberof! external:String#
+		 * @alias trimRight
+		 * @return {String} trimmed string
+		 */
+		String.prototype.trimRight = function () {  
+			return this.replace(/\s+$/, '');
 		};  
 	}
 	
@@ -5080,6 +5096,7 @@ window.me = window.me || {};
 		 * @memberOf me.ObjectContainer
 		 * @function
 		 * @param {me.Renderable} child
+		 * @param {Number} index
 		 */
 		addChildAt : function(child, index) {
 			if((index >= 0) && (index < this.children.length)) {
@@ -5557,7 +5574,7 @@ window.me = window.me || {};
 
 			for ( var i = this.children.length, obj; i--, obj = this.children[i];) {
 				isFloating = obj.floating;
-				if ((obj.inViewport || isFloating) && obj.isRenderable) {
+				if ((obj.inViewport || (isFloating && obj.visible)) && obj.isRenderable) {
 
 					if (isFloating === true) {
 						context.save();
@@ -8567,12 +8584,12 @@ window.me = window.me || {};
 	/**
 	 * a generic system font object.
 	 * @class
-	 * @extends Object
+	 * @extends me.Renderable
 	 * @memberOf me
 	 * @constructor
 	 * @param {String} font a CSS font name
 	 * @param {Number|String} size size, or size + suffix (px, em, pt)
-	 * @param {String} color a CSS color value
+	 * @param {String} fillStyle a CSS color value
 	 * @param {String} [textAlign="left"] horizontal alignment
 	 */
     me.Font = me.Renderable.extend(
@@ -8582,8 +8599,33 @@ window.me = window.me || {};
 		/** @ignore */
 		font : null,
         fontSize : null,
-        color : null,
+       
+		/**
+		 * defines the color used to draw the font.<br>
+		 * Default value : "#000000"
+		 * @public
+		 * @type String
+		 * @name me.Font#fillStyle
+		 */
+		fillStyle : "#000000",
+
+		/**
+		 * defines the color used to draw the font stroke.<br>
+		 * Default value : "#000000"
+		 * @public
+		 * @type String
+		 * @name me.Font#strokeStyle
+		 */
+		strokeStyle : "#000000",
         
+		/**
+		 * sets the current line width, in pixels, when drawing stroke
+		 * Default value : 1
+		 * @public
+		 * @type Number
+		 * @name me.Font#lineWidth 
+		 */
+		lineWidth  : 1,
 		
 		/**
 		 * Set the default text alignment (or justification),<br>
@@ -8606,7 +8648,7 @@ window.me = window.me || {};
 		textBaseline : "top",
 		
 		/**
-		 * Set the line height (when displaying multi-line strings). <br>
+		 * Set the line spacing height (when displaying multi-line strings). <br>
 		 * Current font height will be multiplied with this value to set the line height.
 		 * Default value : 1.0
 		 * @public
@@ -8616,12 +8658,12 @@ window.me = window.me || {};
 		lineHeight : 1.0,
         
 		/** @ignore */
-		init : function(font, size, color, textAlign) {
+		init : function(font, size, fillStyle, textAlign) {
             this.pos = new me.Vector2d();
             this.fontSize = new me.Vector2d();
             
 			// font name and type
-			this.set(font, size, color, textAlign);
+			this.set(font, size, fillStyle, textAlign);
 			
             // parent constructor
             this.parent(this.pos, 0, this.fontSize.y);
@@ -8654,27 +8696,29 @@ window.me = window.me || {};
 		 * @function
 		 * @param {String} font a CSS font name
 		 * @param {Number|String} size size, or size + suffix (px, em, pt)
-		 * @param {String} color a CSS color value
+		 * @param {String} fillStyle a CSS color value
 		 * @param {String} [textAlign="left"] horizontal alignment
 		 * @example
 		 * font.set("Arial", 20, "white");
 		 * font.set("Arial", "1.5em", "white");
 		 */
-		set : function(font, size, color, textAlign) {
+		set : function(font, size, fillStyle, textAlign) {
 			// font name and type
-			var font_names = font.split(",");
-			for (var i = 0; i < font_names.length; i++) {
-				font_names[i] = "'" + font_names[i] + "'";
-			}
+			var font_names = font.split(",").map(function (value) {
+				value = value.trim();
+				return (
+					!/(^".*"$)|(^'.*'$)/.test(value)
+				) ? '"' + value + '"' : value;
+			});
 			
             this.fontSize.y = parseInt(size, 10);
 			this.height = this.fontSize.y;
             
             if (typeof size === "number") {
-				size = "" + size + "px";
+				size += "px";
 			}
 			this.font = size + " " + font_names.join(",");
-			this.color = color;
+			this.fillStyle = fillStyle;
 			if (textAlign) {
 				this.textAlign = textAlign;
 			}
@@ -8692,7 +8736,7 @@ window.me = window.me || {};
 		measureText : function(context, text) {
 			// draw the text
 			context.font = this.font;
-			context.fillStyle = this.color;
+			context.fillStyle = this.fillStyle;
 			context.textAlign = this.textAlign;
 			context.textBaseline = this.textBaseline;
             
@@ -8700,7 +8744,7 @@ window.me = window.me || {};
             
 			var strings = (""+text).split("\n");
 			for (var i = 0; i < strings.length; i++) {
-				this.width = Math.max(context.measureText(strings[i]).width, this.width);
+				this.width = Math.max(context.measureText(strings[i].trimRight()).width, this.width);
 				this.height += this.fontSize.y * this.lineHeight;
 			}
 			return {width: this.width, height: this.height};
@@ -8722,21 +8766,66 @@ window.me = window.me || {};
             
             // draw the text
 			context.font = this.font;
-			context.fillStyle = this.color;
+			context.fillStyle = this.fillStyle;
 			context.textAlign = this.textAlign;
 			context.textBaseline = this.textBaseline;
 		           
 			var strings = (""+text).split("\n");
 			for (var i = 0; i < strings.length; i++) {
 				// draw the string
-				context.fillText(strings[i], ~~x, ~~y);
+				context.fillText(strings[i].trimRight(), ~~x, ~~y);
 				// add leading space
 				y += this.fontSize.y * this.lineHeight;
 			}
 			
+		},
+        
+		/**
+		 * draw a stroke text at the specified coord, as defined <br>
+		 * by the `lineWidth` and `fillStroke` properties. <br>
+		 * Note : using drawStroke is not recommended for performance reasons
+		 * @name drawStroke
+		 * @memberOf me.Font
+		 * @function
+		 * @param {Context} context 2D Context
+		 * @param {String} text
+		 * @param {Number} x
+		 * @param {Number} y
+		 */
+		drawStroke : function(context, text, x, y) {
+            // update initial position
+            this.pos.set(x,y);
+            
+            // save the context, as we are modifying
+            // too much parameter in this function
+            context.save();
+            
+            // draw the text
+            context.font = this.font;
+            context.fillStyle = this.fillStyle;
+            context.strokeStyle = this.strokeStyle;
+            context.lineWidth = this.lineWidth;
+            context.textAlign = this.textAlign;
+            context.textBaseline = this.textBaseline;
+		           
+            var strings = (""+text).split("\n");
+            for (var i = 0; i < strings.length; i++) {
+                var _string = strings[i].trimRight();
+                // draw the border
+                context.strokeText(_string, ~~x, ~~y);
+                // draw the string
+                context.fillText(_string, ~~x, ~~y);
+                // add leading space
+                y += this.fontSize.y * this.lineHeight;
+            }
+            
+            // restore the context
+            context.restore();
 		}
+        
 	});
 
+    
 	/**
 	 * a bitpmap font object
 	 * @class
@@ -8848,7 +8937,7 @@ window.me = window.me || {};
             this.height = this.width = 0;
             
 			for (var i = 0; i < strings.length; i++) {
-				this.width = Math.max((strings[i].trim().length * this.sSize.x), this.width);
+				this.width = Math.max((strings[i].trimRight().length * this.sSize.x), this.width);
 				this.height += this.sSize.y * this.lineHeight;
 			}
 			return {width: this.width, height: this.height};
@@ -8872,7 +8961,7 @@ window.me = window.me || {};
             this.pos.set(x,y);
             for (var i = 0; i < strings.length; i++) {
 				x = lX;
-				var string = strings[i].trim();
+				var string = strings[i].trimRight();
 				// adjust x pos based on alignment value
 				var width = string.length * this.sSize.x;
 				switch(this.textAlign) {
@@ -9737,7 +9826,7 @@ window.me = window.me || {};
 			game_height_zoom = game_height * me.sys.scale.y;
 			
 			//add a channel for the onresize/onorientationchange event
-			window.addEventListener('resize', function (event) {me.event.publish(me.event.WINDOW_ONRESIZE, [event]);}, false);
+			window.addEventListener('resize', throttle(100, false, function (event) {me.event.publish(me.event.WINDOW_ONRESIZE, [event]);}), false);
 			window.addEventListener('orientationchange', function (event) {me.event.publish(me.event.WINDOW_ONORIENTATION_CHANGE, [event]);}, false);
 			
 			// register to the channel
@@ -15807,10 +15896,16 @@ window.me = window.me || {};
 		 * @function
 		 * @param {Array|String} handle The return value from a subscribe call or the
 		 * name of a channel as a String
-		 * @param {Function} [callback] The return value from a subscribe call.
+		 * @param {Function} [callback] The callback to be unsubscribed.
 		 * @example
-		 * var handle = me.subscribe("/some/channel", function(){});
+		 * var handle = me.event.subscribe("/some/channel", function(){});
 		 * me.event.unsubscribe(handle);
+		 *
+		 * // Or alternatively ...
+		 *
+		 * var callback = function(){};
+		 * me.event.subscribe("/some/channel", callback);
+		 * me.event.unsubscribe("/some/channel", callback);
 		 */
 		obj.unsubscribe = function(handle, callback){
 			var subs = cache[callback ? handle : handle[0]],

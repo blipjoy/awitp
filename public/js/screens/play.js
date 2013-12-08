@@ -28,10 +28,37 @@ game.PlayScreen = game.BaseScreen.extend({
             }
         }).bind(this);
 
-        this.onblur = (function (e) {
-            // Keep input text box focused
-            e.target.focus();
+        // Keep input text box focused
+        this.onblur = (function () {
+            var input = this.$input[0];
+            (function () {
+                input.focus();
+            }).defer();
         }).bind(this);
+
+        $("body").on({
+            "click"     : this.onblur,
+            "keydown"   : this.onblur
+        });
+
+        // Keep the text input sized proportionally
+        var onresize = (function() {
+            var width = me.video.getScreenCanvas().width;
+            this.$input.css({
+                "left"      : ($("#screen").width() - width) / 2,
+                "width"     : width,
+                "font-size" : (12 * me.sys.scale.x) + "px",
+                "height"    : (12 * 1.667) + "px"
+            });
+            this.onblur();
+        }).bind(this);
+
+        this.onresize = me.event.subscribe(
+            me.event.WINDOW_ONRESIZE,
+            function () {
+                setTimeout(onresize, 100);
+            }
+        );
 
         // Create input text box
         this.$input = $('<input type="text" />');
@@ -40,8 +67,7 @@ game.PlayScreen = game.BaseScreen.extend({
             "blur"      : this.onblur
         });
         $("#screen").append(this.$input);
-
-        this.$input[0].focus();
+        onresize();
 
         // Fade-in
         me.game.viewport.fadeOut("#000", 1000);
@@ -49,6 +75,8 @@ game.PlayScreen = game.BaseScreen.extend({
 
     "onDestroyEvent" : function () {
         this.parent();
+
+        me.event.unsubscribe(this.onresize);
 
         this.$input.off({
             "keypress"  : this.onkeypress,

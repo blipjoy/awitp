@@ -34,6 +34,9 @@
         "WIDTH"     : 960,
         "HEIGHT"    : 640,
 
+        "DOUBLEBUF" : true,
+        "SCALE"     : "auto",
+
         "GUID"      : (function () {
             function S4() {
                 return ("0000" + Math.floor(Math.random() * 0x10000).toString(16)).slice(-4);
@@ -82,6 +85,7 @@
     me.sys.preRender = true; // Be faster!
     me.sys.stopOnAudioError = false;
     me.sys.pauseOnBlur = false;
+    me.sys.scalingInterpolation = true;
 
     function enableDebug() {
         if (!enabled) {
